@@ -9,11 +9,30 @@ function Home() {
   const [selectedName, setSelectedName] = useState('')
   const [status, setStatus] = useState('Select your name or register if not in the list')
   const [loading, setLoading] = useState(true)
+  const [registeredToday, setRegisteredToday] = useState([])
 
   // Load names list from Supabase
   useEffect(() => {
     loadNamesList()
+    loadRegisteredToday()
   }, [])
+
+  // Reload registered names when attendance changes
+  const loadRegisteredToday = async () => {
+    try {
+      const today = new Date().toISOString().split('T')[0]
+      const { data, error } = await supabase
+        .from('attendance')
+        .select('name')
+        .gte('checked_in_at', `${today}T00:00:00`)
+        .lte('checked_in_at', `${today}T23:59:59`)
+
+      if (error) throw error
+      setRegisteredToday(data ? data.map(item => item.name) : [])
+    } catch (error) {
+      console.error('Error loading registered names:', error)
+    }
+  }
 
   const loadNamesList = async () => {
     try {
@@ -121,6 +140,7 @@ function Home() {
 
       setStatus(`${name} registered successfully!`)
       setSelectedName('')
+      await loadRegisteredToday() // Reload registered list
     } catch (error) {
       console.error('Error registering attendance:', error)
       setStatus('Error registering attendance')
@@ -146,15 +166,19 @@ function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold">
-            🎄 Christmas Party Attendance System 🎄
-          </h1>
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+          <div className="text-center md:text-left">
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-red-400 via-pink-400 to-red-400 bg-clip-text text-transparent mb-2">
+              🎄 Christmas Party
+            </h1>
+            <p className="text-xl text-gray-300">Attendance System</p>
+          </div>
           <Link
             to="/qr-generator"
-            className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105"
           >
             <QrCode className="w-5 h-5" />
             Generate QR Code
@@ -163,25 +187,28 @@ function Home() {
 
         {loading ? (
           <div className="text-center py-20">
-            <div className="text-xl">Loading...</div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-400"></div>
+            <div className="text-xl mt-4 text-gray-300">Loading...</div>
           </div>
         ) : (
           <>
             {/* Welcome Message */}
-            <div className="bg-blue-900/50 border border-blue-500 rounded-lg p-6 mb-6 text-center">
-              <p className="text-lg text-blue-200">
-                Welcome! Please select your name from the list below to sign in, or register if you're not in the list.
-              </p>
+            <div className="max-w-2xl mx-auto mb-8">
+              <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-sm border border-blue-500/30 rounded-2xl p-6 text-center shadow-xl">
+                <p className="text-lg text-gray-100 leading-relaxed">
+                  Welcome! Please select your name from the list below to sign in, or register if you're not in the list.
+                </p>
+              </div>
             </div>
 
             {/* Name Selection Panel */}
             <div className="max-w-2xl mx-auto">
-              <div className="bg-gray-800 rounded-lg p-6 shadow-lg">
-                <h2 className="text-2xl font-bold mb-4 text-center">
+              <div className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-sm rounded-2xl p-8 shadow-2xl border border-gray-700/50">
+                <h2 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
                   Select Your Name or Register
                 </h2>
                 <NameSelector
-                  namesList={namesList}
+                  namesList={namesList.filter(name => !registeredToday.includes(name))}
                   selectedName={selectedName}
                   scannedName=""
                   onSelectName={setSelectedName}
@@ -192,6 +219,7 @@ function Home() {
                   onAddAndRegister={handleAddAndRegister}
                   status={status}
                   qrScanned={false}
+                  registeredNames={registeredToday}
                 />
               </div>
             </div>

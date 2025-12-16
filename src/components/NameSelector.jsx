@@ -41,43 +41,46 @@ const NameSelector = ({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Search Box */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 z-10" />
         <input
           type="text"
           placeholder="Search names..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="w-full pl-12 pr-4 py-3 bg-gray-700/50 backdrop-blur-sm border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all shadow-lg"
         />
       </div>
 
       {/* Names List */}
-      <div className={`bg-gray-700 rounded-lg border max-h-64 overflow-y-auto transition-all ${
-        qrScanned ? 'border-green-500 border-2' : 'border-gray-600'
+      <div className={`bg-gray-700/30 backdrop-blur-sm rounded-xl border max-h-72 overflow-y-auto transition-all shadow-lg ${
+        qrScanned ? 'border-green-500 border-2 ring-2 ring-green-500/50' : 'border-gray-600/50'
       }`}>
         {filteredNames.length === 0 ? (
-          <div className="p-4 text-center text-gray-400">
-            No names found
+          <div className="p-8 text-center text-gray-400">
+            <p className="text-lg">No names available</p>
+            <p className="text-sm mt-2">All names have been registered or no matches found</p>
           </div>
         ) : (
-          <ul className="divide-y divide-gray-600">
+          <ul className="divide-y divide-gray-600/30">
             {filteredNames.map((name) => (
               <li
                 key={name}
                 onClick={() => handleNameClick(name)}
-                className={`p-3 cursor-pointer transition-colors ${
+                className={`p-4 cursor-pointer transition-all duration-200 ${
                   selectedName === name
-                    ? 'bg-green-600 text-white'
-                    : 'hover:bg-gray-600 text-gray-200'
+                    ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg transform scale-[1.02]'
+                    : 'hover:bg-gray-600/50 text-gray-200 hover:transform hover:translate-x-1'
                 }`}
               >
-                {name}
-                {selectedName === name && (
-                  <CheckCircle className="inline-block ml-2 w-4 h-4" />
-                )}
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">{name}</span>
+                  {selectedName === name && (
+                    <CheckCircle className="w-5 h-5 animate-pulse" />
+                  )}
+                </div>
               </li>
             ))}
           </ul>
@@ -85,14 +88,14 @@ const NameSelector = ({
       </div>
 
       {/* Add New Name Section */}
-      <div className="space-y-2">
-        <label className="block text-sm text-gray-300">
+      <div className="space-y-3">
+        <label className="block text-sm font-semibold text-gray-300">
           Name not in list?
         </label>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <input
             type="text"
-            placeholder="Enter name..."
+            placeholder="Enter your name..."
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyPress={(e) => {
@@ -100,11 +103,11 @@ const NameSelector = ({
                 handleAddAndRegister()
               }
             }}
-            className="flex-1 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 px-4 py-3 bg-gray-700/50 backdrop-blur-sm border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-lg"
           />
           <button
             onClick={handleAddAndRegister}
-            className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2"
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105"
           >
             <UserPlus className="w-5 h-5" />
             Add & Register
@@ -116,10 +119,10 @@ const NameSelector = ({
       <button
         onClick={handleRegister}
         disabled={!selectedName && !newName.trim()}
-        className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 ${
+        className={`w-full py-4 px-6 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-lg ${
           selectedName || newName.trim()
-            ? 'bg-orange-600 hover:bg-orange-700 text-white'
-            : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+            ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white hover:shadow-xl transform hover:scale-105'
+            : 'bg-gray-600/50 text-gray-400 cursor-not-allowed'
         }`}
       >
         <CheckCircle className="w-5 h-5" />
@@ -128,12 +131,12 @@ const NameSelector = ({
 
       {/* Status Message */}
       <div
-        className={`p-3 rounded-lg text-sm ${
-          status.includes('successfully') || status.includes('Ready')
-            ? 'bg-green-900/50 text-green-200 border border-green-500'
+        className={`p-4 rounded-xl text-sm font-medium backdrop-blur-sm shadow-lg transition-all duration-300 ${
+          status.includes('successfully')
+            ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-200 border border-green-500/50'
             : status.includes('Error') || status.includes('already')
-            ? 'bg-red-900/50 text-red-200 border border-red-500'
-            : 'bg-yellow-900/50 text-yellow-200 border border-yellow-500'
+            ? 'bg-gradient-to-r from-red-500/20 to-pink-500/20 text-red-200 border border-red-500/50'
+            : 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 text-yellow-200 border border-yellow-500/50'
         }`}
       >
         {status}
