@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import QRScanner from './components/QRScanner'
 import NameSelector from './components/NameSelector'
 import AttendanceList from './components/AttendanceList'
+import QRGenerator from './components/QRGenerator'
 import { supabase } from './lib/supabase'
 import './App.css'
 
@@ -236,7 +237,7 @@ function App() {
             </div>
 
             {/* Attendance List */}
-            <div className="bg-gray-800 rounded-lg p-6 shadow-lg">
+            <div className="bg-gray-800 rounded-lg p-6 shadow-lg mb-6">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold">Registered Attendees</h2>
                 <button
@@ -247,6 +248,11 @@ function App() {
                 </button>
               </div>
               <AttendanceList attendanceList={attendanceList} />
+            </div>
+
+            {/* QR Code Generator */}
+            <div className="max-w-2xl mx-auto">
+              <QRGenerator />
             </div>
           </>
         )}
