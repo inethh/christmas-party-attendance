@@ -3,7 +3,15 @@ import QRCode from 'qrcode'
 import { Download, QrCode } from 'lucide-react'
 
 const QRGenerator = () => {
-  const [qrData, setQrData] = useState('CHRISTMAS_PARTY_2024')
+  // Get the current app URL
+  const getAppUrl = () => {
+    if (typeof window !== 'undefined') {
+      return window.location.origin
+    }
+    return 'https://your-app.vercel.app' // Fallback
+  }
+
+  const [qrData, setQrData] = useState(getAppUrl())
   const [qrImageUrl, setQrImageUrl] = useState('')
   const [error, setError] = useState('')
 
@@ -67,17 +75,17 @@ const QRGenerator = () => {
       <div className="space-y-4">
         <div>
           <label className="block text-sm text-gray-300 mb-2">
-            QR Code Content (any text works - this will trigger name selection)
+            App URL (This will be encoded in the QR code)
           </label>
           <input
             type="text"
             value={qrData}
             onChange={(e) => setQrData(e.target.value)}
             className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
-            placeholder="Enter QR code content"
+            placeholder="https://your-app.vercel.app"
           />
           <p className="text-xs text-gray-400 mt-1">
-            Tip: Use a simple identifier like "CHRISTMAS_PARTY_2024" - any QR code will work!
+            This QR code will redirect attendees to the attendance page where they can select their name or register.
           </p>
         </div>
 
@@ -114,9 +122,10 @@ const QRGenerator = () => {
               <ol className="list-decimal list-inside space-y-1">
                 <li>Download and print this QR code</li>
                 <li>Place it at the entrance/registration area</li>
-                <li>Attendees scan it with the app</li>
-                <li>They select their name from the list</li>
-                <li>Register attendance!</li>
+                <li>Attendees scan it with their phone camera</li>
+                <li>They will be redirected to the attendance page</li>
+                <li>They select their name from the list or register if not in list</li>
+                <li>They sign in to complete registration!</li>
               </ol>
             </div>
           </div>

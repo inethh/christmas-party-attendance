@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react'
-import QRScanner from '../components/QRScanner'
 import NameSelector from '../components/NameSelector'
-import AttendanceList from '../components/AttendanceList'
 import { supabase } from '../lib/supabase'
 import { Link } from 'react-router-dom'
 import { QrCode } from 'lucide-react'
@@ -9,16 +7,12 @@ import { QrCode } from 'lucide-react'
 function Home() {
   const [namesList, setNamesList] = useState([])
   const [selectedName, setSelectedName] = useState('')
-  const [scannedName, setScannedName] = useState('')
-  const [status, setStatus] = useState('Ready to scan QR code')
-  const [attendanceList, setAttendanceList] = useState([])
+  const [status, setStatus] = useState('Select your name or register if not in the list')
   const [loading, setLoading] = useState(true)
-  const [qrScanned, setQrScanned] = useState(false)
 
   // Load names list from Supabase
   useEffect(() => {
     loadNamesList()
-    loadAttendanceList()
   }, [])
 
   const loadNamesList = async () => {
@@ -62,34 +56,7 @@ function Home() {
     }
   }
 
-  const loadAttendanceList = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('attendance')
-        .select('*')
-        .order('checked_in_at', { ascending: false })
-        .limit(100)
 
-      if (error) throw error
-      setAttendanceList(data || [])
-    } catch (error) {
-      console.error('Error loading attendance list:', error)
-    }
-  }
-
-  const handleQRScan = async (qrData) => {
-    // QR code scanned - show name selection interface
-    setQrScanned(true)
-    setStatus('QR Code scanned! Please select your name from the list below.')
-    
-    // Scroll to name selector (optional - can be enhanced with ref)
-    setTimeout(() => {
-      const nameSelector = document.querySelector('[data-name-selector]')
-      if (nameSelector) {
-        nameSelector.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      }
-    }, 100)
-  }
 
   const addNameToList = async (name) => {
     if (!name.trim()) {
@@ -154,9 +121,6 @@ function Home() {
 
       setStatus(`${name} registered successfully!`)
       setSelectedName('')
-      setScannedName('')
-      setQrScanned(false)
-      await loadAttendanceList()
     } catch (error) {
       console.error('Error registering attendance:', error)
       setStatus('Error registering attendance')
@@ -164,7 +128,7 @@ function Home() {
   }
 
   const handleAddAndRegister = async (nameFromInput) => {
-    const nameToAdd = nameFromInput || scannedName || selectedName
+    const nameToAdd = nameFromInput || selectedName
     if (!nameToAdd || !nameToAdd.trim()) {
       setStatus('Please enter a name')
       return
@@ -178,9 +142,7 @@ function Home() {
 
     // Register attendance
     await registerAttendance(nameToAdd)
-    setScannedName('')
     setSelectedName('')
-    setQrScanned(false)
   }
 
   return (
@@ -205,58 +167,33 @@ function Home() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              {/* QR Scanner Panel */}
-              <div className="bg-gray-800 rounded-lg p-6 shadow-lg">
-                <h2 className="text-2xl font-bold mb-4">QR Code Scanner</h2>
-                <QRScanner onScan={handleQRScan} />
-              </div>
+            {/* Welcome Message */}
+            <div className="bg-blue-900/50 border border-blue-500 rounded-lg p-6 mb-6 text-center">
+              <p className="text-lg text-blue-200">
+                Welcome! Please select your name from the list below to sign in, or register if you're not in the list.
+              </p>
+            </div>
 
-              {/* Name Selection Panel */}
-              <div 
-                className={`bg-gray-800 rounded-lg p-6 shadow-lg transition-all duration-300 ${
-                  qrScanned ? 'ring-4 ring-green-500 ring-opacity-50' : ''
-                }`}
-                data-name-selector
-              >
-                <h2 className="text-2xl font-bold mb-4">
-                  Select Your Name
-                  {qrScanned && (
-                    <span className="ml-2 text-sm text-green-400 font-normal">
-                      (QR Code Scanned ✓)
-                    </span>
-                  )}
+            {/* Name Selection Panel */}
+            <div className="max-w-2xl mx-auto">
+              <div className="bg-gray-800 rounded-lg p-6 shadow-lg">
+                <h2 className="text-2xl font-bold mb-4 text-center">
+                  Select Your Name or Register
                 </h2>
                 <NameSelector
                   namesList={namesList}
                   selectedName={selectedName}
-                  scannedName={scannedName}
+                  scannedName=""
                   onSelectName={setSelectedName}
                   onRegister={(name) => {
                     registerAttendance(name)
                     setSelectedName('')
-                    setScannedName('')
-                    setQrScanned(false)
                   }}
                   onAddAndRegister={handleAddAndRegister}
                   status={status}
-                  qrScanned={qrScanned}
+                  qrScanned={false}
                 />
               </div>
-            </div>
-
-            {/* Attendance List */}
-            <div className="bg-gray-800 rounded-lg p-6 shadow-lg">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold">Registered Attendees</h2>
-                <button
-                  onClick={loadAttendanceList}
-                  className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded transition-colors"
-                >
-                  Refresh List
-                </button>
-              </div>
-              <AttendanceList attendanceList={attendanceList} />
             </div>
           </>
         )}

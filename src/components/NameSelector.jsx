@@ -12,14 +12,7 @@ const NameSelector = ({
   qrScanned = false,
 }) => {
   const [searchTerm, setSearchTerm] = useState('')
-  const [newName, setNewName] = useState(scannedName || '')
-
-  // Update newName when scannedName changes
-  useEffect(() => {
-    if (scannedName) {
-      setNewName(scannedName)
-    }
-  }, [scannedName])
+  const [newName, setNewName] = useState('')
 
   const filteredNames = useMemo(() => {
     if (!searchTerm) return namesList.sort()
