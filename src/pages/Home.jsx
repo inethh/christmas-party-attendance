@@ -162,6 +162,46 @@ function Home() {
     setSelectedName('')
   }
 
+  // Function to bulk import all names
+  const importAllNames = async () => {
+    try {
+      setStatus('Importing names...')
+      
+      // Check which names already exist
+      const { data: existing } = await supabase
+        .from('names_list')
+        .select('name')
+      
+      const existingNames = existing ? existing.map(item => item.name) : []
+      const namesToInsert = defaultNames
+        .filter(name => !existingNames.includes(name))
+        .map(name => ({ name }))
+      
+      if (namesToInsert.length === 0) {
+        setStatus('All names are already in the database')
+        await loadNamesList()
+        return
+      }
+
+      // Insert in batches to avoid overwhelming the database
+      const batchSize = 50
+      for (let i = 0; i < namesToInsert.length; i += batchSize) {
+        const batch = namesToInsert.slice(i, i + batchSize)
+        const { error } = await supabase
+          .from('names_list')
+          .insert(batch)
+        
+        if (error) throw error
+      }
+
+      setStatus(`Successfully imported ${namesToInsert.length} names!`)
+      await loadNamesList()
+    } catch (error) {
+      console.error('Error importing names:', error)
+      setStatus('Error importing names. Please check console.')
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
       <div className="container mx-auto px-4 py-8">
