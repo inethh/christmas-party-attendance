@@ -16,7 +16,8 @@
     "html5-qrcode": "^2.3.8",
     "lucide-react": "^0.294.0",
     "date-fns": "^2.30.0",
-    "qrcode": "^1.5.3"
+    "qrcode": "^1.5.3",
+    "react-router-dom": "^6.20.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",
