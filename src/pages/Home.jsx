@@ -3,7 +3,6 @@ import NameSelector from '../components/NameSelector'
 import { supabase } from '../lib/supabase'
 import { Link } from 'react-router-dom'
 import { QrCode } from 'lucide-react'
-import { defaultNames } from '../utils/namesList'
 
 function Home() {
   const [namesList, setNamesList] = useState([])
@@ -47,9 +46,8 @@ function Home() {
       if (data && data.length > 0) {
         setNamesList(data.map(item => item.name))
       } else {
-        // Initialize with default names if table is empty
-        await initializeNamesList(defaultNames)
-        setNamesList(defaultNames)
+        // Table is empty - names need to be added manually via Supabase
+        setNamesList([])
       }
       setLoading(false)
     } catch (error) {
@@ -162,45 +160,6 @@ function Home() {
     setSelectedName('')
   }
 
-  // Function to bulk import all names
-  const importAllNames = async () => {
-    try {
-      setStatus('Importing names...')
-      
-      // Check which names already exist
-      const { data: existing } = await supabase
-        .from('names_list')
-        .select('name')
-      
-      const existingNames = existing ? existing.map(item => item.name) : []
-      const namesToInsert = defaultNames
-        .filter(name => !existingNames.includes(name))
-        .map(name => ({ name }))
-      
-      if (namesToInsert.length === 0) {
-        setStatus('All names are already in the database')
-        await loadNamesList()
-        return
-      }
-
-      // Insert in batches to avoid overwhelming the database
-      const batchSize = 50
-      for (let i = 0; i < namesToInsert.length; i += batchSize) {
-        const batch = namesToInsert.slice(i, i + batchSize)
-        const { error } = await supabase
-          .from('names_list')
-          .insert(batch)
-        
-        if (error) throw error
-      }
-
-      setStatus(`Successfully imported ${namesToInsert.length} names!`)
-      await loadNamesList()
-    } catch (error) {
-      console.error('Error importing names:', error)
-      setStatus('Error importing names. Please check console.')
-    }
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
@@ -220,21 +179,13 @@ function Home() {
             >
               Import All Names
             </button>
-          <div className="flex gap-3">
-            <button
-              onClick={importAllNames}
-              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 px-4 py-2 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm"
-            >
-              Import All Names
-            </button>
-            <Link
-              to="/qr-generator"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105"
-            >
-              <QrCode className="w-5 h-5" />
-              Generate QR Code
-            </Link>
-          </div>
+          <Link
+            to="/qr-generator"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105"
+          >
+            <QrCode className="w-5 h-5" />
+            Generate QR Code
+          </Link>
           </div>
         </div>
 
