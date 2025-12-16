@@ -47,9 +47,11 @@ function Home() {
         setNamesList(data.map(item => item.name))
       } else {
         // Initialize with default names if table is empty
+        // Note: Run update-names.sql in Supabase to populate the database
         const defaultNames = [
-          "John Doe", "Jane Smith", "Bob Johnson", "Alice Williams",
-          "Charlie Brown", "Diana Prince", "Edward Norton", "Fiona Apple"
+          "Alajas, Elmer",
+          "Alajas, Ezaganie",
+          "Alcober, Neil"
         ]
         await initializeNamesList(defaultNames)
         setNamesList(defaultNames)
