@@ -9,6 +9,7 @@ const NameSelector = ({
   onRegister,
   onAddAndRegister,
   status,
+  qrScanned = false,
 }) => {
   const [searchTerm, setSearchTerm] = useState('')
   const [newName, setNewName] = useState(scannedName || '')
@@ -61,7 +62,9 @@ const NameSelector = ({
       </div>
 
       {/* Names List */}
-      <div className="bg-gray-700 rounded-lg border border-gray-600 max-h-64 overflow-y-auto">
+      <div className={`bg-gray-700 rounded-lg border max-h-64 overflow-y-auto transition-all ${
+        qrScanned ? 'border-green-500 border-2' : 'border-gray-600'
+      }`}>
         {filteredNames.length === 0 ? (
           <div className="p-4 text-center text-gray-400">
             No names found

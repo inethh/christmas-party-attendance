@@ -12,6 +12,7 @@ function App() {
   const [status, setStatus] = useState('Ready to scan QR code')
   const [attendanceList, setAttendanceList] = useState([])
   const [loading, setLoading] = useState(true)
+  const [qrScanned, setQrScanned] = useState(false)
 
   // Load names list from Supabase
   useEffect(() => {
@@ -76,18 +77,17 @@ function App() {
   }
 
   const handleQRScan = async (qrData) => {
-    setScannedName(qrData)
+    // QR code scanned - show name selection interface
+    setQrScanned(true)
+    setStatus('QR Code scanned! Please select your name from the list below.')
     
-    // Check if name exists in list
-    if (namesList.includes(qrData)) {
-      setSelectedName(qrData)
-      setStatus(`QR Code scanned: ${qrData}`)
-      // Auto-register if found
-      await registerAttendance(qrData)
-    } else {
-      setStatus(`QR Code: ${qrData} - Name not in list. Please add it below.`)
-      setSelectedName('')
-    }
+    // Scroll to name selector (optional - can be enhanced with ref)
+    setTimeout(() => {
+      const nameSelector = document.querySelector('[data-name-selector]')
+      if (nameSelector) {
+        nameSelector.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    }, 100)
   }
 
   const addNameToList = async (name) => {
@@ -154,6 +154,7 @@ function App() {
       setStatus(`${name} registered successfully!`)
       setSelectedName('')
       setScannedName('')
+      setQrScanned(false)
       await loadAttendanceList()
     } catch (error) {
       console.error('Error registering attendance:', error)
@@ -178,6 +179,7 @@ function App() {
     await registerAttendance(nameToAdd)
     setScannedName('')
     setSelectedName('')
+    setQrScanned(false)
   }
 
   return (
@@ -201,8 +203,20 @@ function App() {
               </div>
 
               {/* Name Selection Panel */}
-              <div className="bg-gray-800 rounded-lg p-6 shadow-lg">
-                <h2 className="text-2xl font-bold mb-4">Select Your Name</h2>
+              <div 
+                className={`bg-gray-800 rounded-lg p-6 shadow-lg transition-all duration-300 ${
+                  qrScanned ? 'ring-4 ring-green-500 ring-opacity-50' : ''
+                }`}
+                data-name-selector
+              >
+                <h2 className="text-2xl font-bold mb-4">
+                  Select Your Name
+                  {qrScanned && (
+                    <span className="ml-2 text-sm text-green-400 font-normal">
+                      (QR Code Scanned ✓)
+                    </span>
+                  )}
+                </h2>
                 <NameSelector
                   namesList={namesList}
                   selectedName={selectedName}
@@ -212,9 +226,11 @@ function App() {
                     registerAttendance(name)
                     setSelectedName('')
                     setScannedName('')
+                    setQrScanned(false)
                   }}
                   onAddAndRegister={handleAddAndRegister}
                   status={status}
+                  qrScanned={qrScanned}
                 />
               </div>
             </div>
