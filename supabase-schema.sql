@@ -58,3 +58,4 @@ INSERT INTO names_list (name) VALUES
   ('Fiona Apple')
 ON CONFLICT (name) DO NOTHING;
 
+

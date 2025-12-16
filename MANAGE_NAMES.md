@@ -76,3 +76,4 @@ DELETE FROM names_list WHERE name = 'Name to delete';
 - The `name` field has a UNIQUE constraint, so duplicates won't be allowed
 - After making changes, refresh the app to see updates
 
+

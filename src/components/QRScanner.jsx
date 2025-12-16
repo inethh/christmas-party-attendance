@@ -114,3 +114,4 @@ const QRScanner = ({ onScan }) => {
 
 export default QRScanner
 
+

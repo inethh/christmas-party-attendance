@@ -109,3 +109,4 @@ INSERT INTO names_list (name) VALUES
 ('Yuson, Miler')
 ON CONFLICT (name) DO NOTHING;
 
+

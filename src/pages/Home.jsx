@@ -172,13 +172,6 @@ function Home() {
             </h1>
             <p className="text-xl text-gray-300">Attendance System</p>
           </div>
-          <div className="flex gap-3">
-            <button
-              onClick={importAllNames}
-              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 px-4 py-2 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105 text-sm"
-            >
-              Import All Names
-            </button>
           <Link
             to="/qr-generator"
             className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105"
@@ -186,7 +179,6 @@ function Home() {
             <QrCode className="w-5 h-5" />
             Generate QR Code
           </Link>
-          </div>
         </div>
 
         {loading ? (
